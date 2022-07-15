@@ -5,13 +5,32 @@ Vue.use(VueRouter)
 
 const routes = [
   {
-    path: '/',
-    redirect: '/login'
-  },
-  {
     path: '/login',
     name: 'login',
     component: () => import('@/views/Login')
+  },
+  {
+    path: '/',
+    redirect: '/ ',
+    component: () => import('@/views/Layout'),
+    children: [
+      {
+        path: '/ ',
+        component: () => import('@/views/Home')
+      },
+      {
+        path: 'vedio',
+        component: () => import('@/views/Vedio')
+      },
+      {
+        path: 'qa',
+        component: () => import('@/views/QA')
+      },
+      {
+        path: 'profile',
+        component: () => import('@/views/My')
+      }
+    ]
   }
 ]
 
