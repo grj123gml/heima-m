@@ -1,6 +1,6 @@
 <template>
   <div>
-     <van-cell v-for="(item,index) in highlightDta" :key="index">
+     <van-cell v-for="(item,index) in highlightDta" :key="index" @click="searchFn(index)">
       <template #icon>
         <van-icon name="search" class="seaarch-icon"/>
       </template>
@@ -46,6 +46,13 @@ export default {
       } catch (error) {
         console.log(error)
       }
+    },
+    searchFn (index) {
+      // console.log(this.suggestions[index])
+      this.$parent.keywords = this.suggestions[index]
+      this.$parent.isShowSearchResult = true
+      this.$parent.history.unshift(this.suggestions[index])
+      // console.log(this.$parent.history)
     }
   },
   computed: {

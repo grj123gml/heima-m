@@ -6,7 +6,7 @@
     v-model="keywords"
     show-action
     placeholder="请输入搜索关键词"
-    @search="onSearch"
+    @search="onSearch(keywords)"
     @cancel="backToPropage"
     @focus="visibleSearchSuggestion"
   />
@@ -14,20 +14,23 @@
  <!-- <SearchHistory></SearchHistory>
  <SearchSuggestion></SearchSuggestion>
  <SearchResult></SearchResult> -->
- <component :is="componentName" :keywords="keywords"></component>
+ <component :is="componentName" :keywords="keywords" :history="history"></component>
   </div>
 </template>
 
 <script>
+import storage from '@/utils/storage'
 import SearchHistory from '@/views/Search/components/SearchHistory.vue'
 import SearchResult from '@/views/Search/components/SearchResult.vue'
 import SearchSuggestion from '@/views/Search/components/SearchSuggestion.vue'
+
 export default {
   data () {
     return {
     // 搜索关键词
       keywords: '',
-      isShowSearchResult: false
+      isShowSearchResult: false,
+      history: storage.get('searchHistory') || []
     }
   },
   components: {
@@ -48,7 +51,10 @@ export default {
     }
   },
   methods: {
-    onSearch () {
+    onSearch (val) {
+      this.keywords = val
+      this.history.unshift(val)
+      // console.log(this.history)
       this.isShowSearchResult = true
     },
     backToPropage () {
@@ -56,6 +62,14 @@ export default {
     },
     visibleSearchSuggestion () {
       this.isShowSearchResult = false
+    }
+  },
+  watch: {
+    history: {
+      deep: true,
+      handler (val) {
+        storage.set('searchHistory', val)
+      }
     }
   }
 }
