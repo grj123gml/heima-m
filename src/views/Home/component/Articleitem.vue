@@ -4,13 +4,17 @@
     <van-cell
     v-if="articleInfo.cover.type ===0"
     :title="articleInfo.title"
-    :label="articleDesc" />
+    :label="articleDesc"
+    :to="`/article/${articleInfo.art_id}`"
+     @click="getArt"/>
 
        <!-- 渲染一张图片 -->
     <van-cell
     v-if="articleInfo.cover.type ===1"
     :title="articleInfo.title"
-    :label="articleDesc">
+    :label="articleDesc"
+    :to="`/article/${articleInfo.art_id}`"
+    @click="getArt1">
     <van-image
     width="3rem"
     height="2rem"
@@ -21,7 +25,9 @@
        <!-- 渲染三张图片 -->
     <van-cell
     v-if="articleInfo.cover.type ===3"
-    :title="articleInfo.title">
+    :title="articleInfo.title"
+    :to="`/article/${articleInfo.art_id}`"
+     @click="getArt2">
     <template #label>
         <div>
         <van-image
@@ -55,6 +61,17 @@ export default {
       const art = this.articleInfo
       const relativeTime = dayjs(art.pubdate).fromNow()
       return `${art.aut_name} ${art.comm_count}评论 ${relativeTime}`
+    }
+  },
+  methods: {
+    getArt () {
+      this.$store.commit('setId', this.articleInfo.art_id)
+    },
+    getArt1 () {
+      this.$store.commit('setId', this.articleInfo.art_id)
+    },
+    getArt2 () {
+      this.$store.commit('setId', this.articleInfo.art_id)
     }
   }
 
