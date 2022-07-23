@@ -10,7 +10,9 @@
         </div>
         <div class="commentTime">
           <span>{{ pubdate || '暂无' }}</span>
-          <van-button class="huifuBtn">回复0</van-button>
+          <van-button class="huifuBtn" @click="isShowComment = true"
+            >回复0</van-button
+          >
         </div>
       </template>
       <template #default>
@@ -18,18 +20,42 @@
         <span>赞</span>
       </template>
     </van-cell>
+
+    <van-popup
+      v-model="isShowComment"
+      position="bottom"
+      closeable
+      close-icon-position="top-left"
+      close-icon="arrow-left"
+      :style="{ height: '100%' }"
+    >
+      <!-- 回复评论弹窗组件 -->
+      <commentReply
+        :commentList="commentList"
+        :id="commentList.aut_id"
+        :num="commentList.reply_count"
+      ></commentReply>
+    </van-popup>
   </van-cell-group>
 </template>
 
 <script>
 import dayjs from '@/utils/dayjs'
-
+import commentReply from '@/views/Article/components/commentReply.vue'
 export default {
   name: 'sareItem',
+  data () {
+    return {
+      isShowComment: false
+    }
+  },
   props: {
     commentList: {
       type: Object
     }
+  },
+  components: {
+    commentReply
   },
   created () {
     // console.log(this.commentList)
