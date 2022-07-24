@@ -2,6 +2,7 @@
   <!-- 头部 -->
   <div class="body">
     <van-nav-bar
+      class="header"
       title="黑马头条"
       left-arrow
       fixed
@@ -68,7 +69,7 @@
         >写评论</van-tabbar-item
       >
       <!-- 评论按钮 -->
-      <van-badge class="badge" :content="Article.comm_count">
+      <van-badge class="badge" :content="totalCount">
         <div class="child"><van-tabbar-item icon="comment-o" /></div>
       </van-badge>
       <van-tabbar-item>
@@ -148,6 +149,7 @@ export default {
       islikeArticle: false,
       commentId: '',
       showShare: false,
+      totalCount: 0,
       options: [
         [
           { name: '微信', icon: 'wechat' },
@@ -182,6 +184,7 @@ export default {
         console.log(res)
         this.commentList = res.data.data.results
         this.commentId = res.data.data.last_id
+        this.totalCount = res.data.data.total_count
       } catch (error) {
         console.log(error)
       }
@@ -291,8 +294,10 @@ export default {
       color: #fff;
     }
   }
-  :deep(.van-nav-bar__title) {
-    color: #fff;
+  .header {
+    :deep(.van-nav-bar__title) {
+      color: #fff;
+    }
   }
   .title {
     font-size: 0.53333rem;

@@ -23,7 +23,7 @@
             </div>
             <div class="commentTime">
               <span>{{ pubdate || '暂无' }}</span>
-              <van-button class="huifuBtn">回复0</van-button>
+              <van-button class="huifuBtn">回复{{ total }}</van-button>
             </div>
           </template>
           <template #default>
@@ -56,9 +56,9 @@
           <template #default>
             <van-icon
               name="good-job-o"
-              :class="{ loveBtn: replyisLiking === true }"
+              :class="{ loveBtn: item.is_liking === true }"
             />
-            <span @click="likeFnIn">赞</span>
+            <span @click="likeFnIn(item.com_id, item.is_liking)">赞</span>
           </template>
         </van-cell>
       </van-cell-group>
@@ -69,24 +69,26 @@
         <van-button class="commentBtn nav_Btn" round @click="isShowPop">
           评论</van-button
         >
+
+        <!-- 弹出写评论 -->
         <van-popup
           v-model="showPop"
           position="bottom"
-          :style="{ height: '20%' }"
+          :style="{ height: '11%' }"
+          class="comment-area"
         >
-          <van-field
-            v-model="message"
-            rows="2"
-            autosize
-            type="textarea"
-            maxlength="50"
-            placeholder="请输入留言"
-            show-word-limit
-          >
-            <template #extra
-              ><span class="release" @click="releaseFn">发布</span>
-            </template>
-          </van-field>
+          <div class="area">
+            <van-field
+              v-model="commContent"
+              rows="2"
+              autosize
+              type="textarea"
+              maxlength="50"
+              placeholder="请输入留言"
+              show-word-limit
+            />
+            <p class="post" @click="releaseFn">发布</p>
+          </div>
         </van-popup>
       </van-tabbar-item>
     </van-tabbar>
@@ -95,31 +97,36 @@
 
 <script>
 import dayjs from '@/utils/dayjs'
+import {
+  PostComment,
+  getArticleComment,
+  addLikeComment,
+  deleteLikeComment
+} from '@/api/comment.js'
 export default {
   name: 'popUp',
   data () {
     return {
       loading: false,
       finished: false,
-      isLiking: '',
+      // 写评论的绑定数据
+      commContent: '',
+      isLiking: false,
       // 评论的ID
       commentId: '',
       // 全部评论的数据
       allComments: [],
-      // 回复点赞
-      replyisLiking: false,
       // 显示弹框
       showPop: false,
       // 回复内容
-      message: ''
+      message: '',
+      // 回复总数
+      total: 0
     }
   },
   props: {
     commentList: {
       type: Object
-    },
-    num: {
-      type: [String, Number]
     },
     id: {
       type: [String, Number]
@@ -128,7 +135,7 @@ export default {
   created () {
     // 获取评论id
     this.commentId = this.commentList.com_id
-    // 获取点赞数量
+    // 获取评论点赞状态
     this.isLiking = this.commentList.is_liking
     // 获取文章回复
     this.getArtistComment()
@@ -140,10 +147,30 @@ export default {
     },
     // 点赞
     async likeFn () {
-      console.log(this.id)
+      // console.log(this.id)
+      try {
+        if (!this.isLiking) {
+          await addLikeComment(this.id)
+        } else {
+          await deleteLikeComment(this.id)
+        }
+        this.isLiking = !this.isLiking
+      } catch (error) {
+        this.$toast.fail('操作失败')
+      }
     },
     // 获取文章评论回复
-    async getArtistComment () {},
+    async getArtistComment () {
+      try {
+        const res = await getArticleComment('c', this.commentId)
+        // console.log(res)
+        this.allComments = res.data.data.results
+        console.log(this.allComments)
+        this.total = res.data.data.total_count
+      } catch (error) {
+        console.log(error)
+      }
+    },
     // 评论回复的时间计算
     pubdateData (item) {
       // const art = this.commentList
@@ -151,20 +178,48 @@ export default {
       return time
     },
     // 回复点赞
-    async likeFnIn () {},
+    async likeFnIn (id, Liking) {
+      try {
+        if (!Liking) {
+          await addLikeComment(id)
+        } else {
+          await deleteLikeComment(id)
+        }
+        Liking = !Liking
+        this.getArtistComment()
+      } catch (error) {
+        this.$toast.fail('操作失败')
+      }
+    },
     // 点击显示弹框
     isShowPop () {
       this.showPop = true
-      console.log(this.showPop)
     },
     // 发布回复
-    releaseFn () {}
+    async releaseFn () {
+      try {
+        await PostComment(
+          this.commentId,
+          this.commContent,
+          this.$store.state.ArtId
+        )
+        this.commContent = ''
+        this.showPop = false
+        this.$toast.success('发布成功')
+        this.getArtistComment()
+      } catch (error) {
+        this.$toast.success('发布失败')
+      }
+    }
   },
   computed: {
     pubdate () {
       const art = this.commentList
       const time = dayjs(art.pubdate).fromNow()
       return time
+    },
+    num () {
+      return this.allComments.length
     }
   }
 }
@@ -235,17 +290,38 @@ export default {
   align-items: center;
   color: #333;
 }
+//评论弹框
+.comment-area {
+  :deep(.van-popup) {
+    width: 100%;
+  }
+  padding: 34px 0 34px 34px;
+  :deep(.van-cell) {
+    background-color: #f5f7f9;
+    width: 85%;
+  }
+  .area {
+    .post {
+      position: absolute;
+      bottom: 85px;
+      left: 680px;
+      font-size: 28px;
+      color: #b5d1ec;
+    }
+  }
+}
 
 // 底部按钮
 .bottomBtn {
   .van-tabbar-item {
     border-top: 1px solid #f5f6f8;
+    background-color: hotpink;
   }
   .commentBtn {
     border: 1px solid #f5f6f8;
   }
   .nav_Btn {
-    width: 500px;
+    width: 650px;
     margin-bottom: 8px;
   }
 }

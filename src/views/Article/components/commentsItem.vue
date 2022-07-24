@@ -11,13 +11,16 @@
         <div class="commentTime">
           <span>{{ pubdate || '暂无' }}</span>
           <van-button class="huifuBtn" @click="isShowComment = true"
-            >回复0</van-button
+            >回复{{ commentList.reply_count }}</van-button
           >
         </div>
       </template>
       <template #default>
-        <van-icon name="good-job-o" />
-        <span>赞</span>
+        <van-icon
+          name="good-job-o"
+          :class="{ loveBtn: commentList.is_liking === true }"
+        />
+        <span @click="likeFn">赞</span>
       </template>
     </van-cell>
 
@@ -32,8 +35,7 @@
       <!-- 回复评论弹窗组件 -->
       <commentReply
         :commentList="commentList"
-        :id="commentList.aut_id"
-        :num="commentList.reply_count"
+        :id="commentList.com_id"
       ></commentReply>
     </van-popup>
   </van-cell-group>
@@ -42,6 +44,7 @@
 <script>
 import dayjs from '@/utils/dayjs'
 import commentReply from '@/views/Article/components/commentReply.vue'
+import { addLikeComment, deleteLikeComment } from '@/api/comment.js'
 export default {
   name: 'sareItem',
   data () {
@@ -57,8 +60,19 @@ export default {
   components: {
     commentReply
   },
-  created () {
-    // console.log(this.commentList)
+  methods: {
+    async likeFn () {
+      try {
+        if (!this.commentList.is_liking) {
+          await addLikeComment(this.commentList.com_id)
+        } else {
+          await deleteLikeComment(this.commentList.com_id)
+        }
+        this.$toast.success('点赞成功')
+      } catch (error) {
+        this.$toast.fail('操作失败')
+      }
+    }
   },
   computed: {
     pubdate () {
@@ -117,5 +131,8 @@ export default {
   display: flex;
   align-items: center;
   color: #333;
+}
+.loveBtn {
+  color: red;
 }
 </style>

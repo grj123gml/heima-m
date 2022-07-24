@@ -24,3 +24,27 @@ export const PostComment = (target, content, artId) => {
     }
   })
 }
+/**
+ * 点赞评论或回复评论
+ * @param {String} target 点赞的评论id
+ */
+export const addLikeComment = (target) => {
+  return request({
+    method: 'POST',
+    url: '/v1_0/comment/likings',
+    data: {
+      target
+    }
+  })
+}
+
+/**
+ *取消点赞
+ * @param {interger} target 要取消点赞的评论id或评论回复id
+ */
+export const deleteLikeComment = (target) => {
+  return request({
+    method: 'DELETE',
+    url: `/v1_0/comment/likings/${target}`
+  })
+}
