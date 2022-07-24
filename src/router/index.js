@@ -39,6 +39,13 @@ const routes = [
   {
     path: '/user',
     component: () => import('@/views/User')
+  },
+  {
+    path: '/article/:articleId',
+    name: 'article',
+    component: () => import('@/views/Article'),
+    // 将路由动态参数映射到组件的 props 中，更推荐这种做法
+    props: true
   }
 ]
 

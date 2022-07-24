@@ -10,7 +10,7 @@
     </template>
   </van-cell>
   <van-cell-group>
-  <van-cell v-for="(item,index) in history" :key="index" :title="item">
+  <van-cell v-for="(item,index) in history" :key="index" :title="item" @click="getResult(item)">
   <template #right-icon>
    <van-icon name="close" v-show="!isShowDel" @click="delHistory(item)"/>
   </template>
@@ -45,6 +45,10 @@ export default {
     },
     delHistory (val) {
       this.$parent.history = this.$parent.history.filter(ele => ele !== val)
+    },
+    getResult (val) {
+      this.$parent.keywords = val
+      this.$parent.isShowSearchResult = true
     }
   }
 

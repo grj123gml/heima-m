@@ -43,7 +43,6 @@ export default {
       }
     },
     async onLoad () {
-      this.page++
       const res = await getSearchResult(this.keywords, this.page, this.perPage)
       this.list.push(...res.data.data.results)
       this.loading = false

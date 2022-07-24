@@ -70,3 +70,28 @@ export const updataUserInfo = (data) => {
     data
   })
 }
+/**
+ *关注用户接口
+ * @param {String} target 关注用户的id
+ * @returns  Promise
+ */
+export const addFollow = (target) => {
+  return request({
+    method: 'POST',
+    url: '/v1_0/user/followings',
+    data: {
+      target
+    }
+  })
+}
+/**
+ *取消用户关注的接口
+ * @param {String} target 目标用户（被取消关注的用户id）
+ * @returns  Promise
+ */
+export const deleteFollow = target => {
+  return request({
+    method: 'DELETE',
+    url: `/v1_0/user/followings/${target}`
+  })
+}
