@@ -37,3 +37,36 @@ export const getUserInfo = () => {
     }
   })
 }
+/**
+ *获取用户个人资料
+ * @returns Promise
+ */
+export const getUserprofile = () => {
+  return request({
+    method: 'GET',
+    url: '/v1_0/user/profile'
+  })
+}
+/**
+ * 编辑用户照片资料（头像、身份证照片）
+ */
+export const uploadPhoto = (formDate) => {
+  return request({
+    method: 'PATCH',
+    url: '/v1_0/user/photo',
+    data: formDate
+  })
+}
+
+/**
+ * 编辑用户的个人资料
+ * @param {Object} data
+ * @returns
+ */
+export const updataUserInfo = (data) => {
+  return request({
+    method: 'PATCH',
+    url: '/v1_0/user/profile',
+    data
+  })
+}
