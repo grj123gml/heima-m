@@ -45,9 +45,13 @@
       </div>
     </div>
     <!-- 文章主体区域 -->
-    <div class="article-content markdown-body" v-html="Article.content"></div>
+    <div
+      class="article-content markdown-body"
+      v-html="Article.content"
+      ref="contentText"
+    ></div>
     <!-- 分割线 -->
-    <van-divider class="divider">正文结束</van-divider>
+    <van-divider class="divider" id="contentEnd">正文结束</van-divider>
     <!-- 评论 -->
     <div class="comment">
       <van-list
@@ -70,7 +74,9 @@
       >
       <!-- 评论按钮 -->
       <van-badge class="badge" :content="totalCount">
-        <div class="child"><van-tabbar-item icon="comment-o" /></div>
+        <div class="child" @click="focusCommentArea">
+          <van-tabbar-item icon="comment-o" />
+        </div>
       </van-badge>
       <van-tabbar-item>
         <template #icon>
@@ -134,6 +140,7 @@ import {
 import { getArticleComment, PostComment } from '@/api/comment.js'
 import { addFollow, deleteFollow } from '@/api/user.js'
 import { addLikeArticle, cancelLikeArticle } from '@/api/news.js'
+import { ImagePreview } from 'vant'
 export default {
   components: {
     getCommentItem
@@ -143,6 +150,7 @@ export default {
       Article: {},
       loading: false,
       finished: false,
+      imgList: [],
       commentList: [],
       show: false,
       message: '',
@@ -168,7 +176,6 @@ export default {
   },
   created () {
     this.getArticle()
-    this.getArticleComment()
   },
   methods: {
     // 获取文章列表
@@ -176,6 +183,24 @@ export default {
       const res = await getArticleById(this.$store.state.ArtId)
       // console.log(res)
       this.Article = res.data.data
+      this.getArticleComment()
+      this.$nextTick(() => {
+        // 获取所有的img元素
+        this.imgList = this.$refs.contentText.querySelectorAll('img')
+        // console.log(this.imgList)
+        // 声明空数组用于vant组件图片预览
+        const imgSrc = []
+        this.imgList.forEach((item, index) => {
+          imgSrc.push(item.src)
+          item.addEventListener('click', () => {
+            ImagePreview({
+              images: imgSrc,
+              closeable: true,
+              startPosition: index
+            })
+          })
+        })
+      })
     },
     // 获取评论
     async getArticleComment () {
@@ -256,13 +281,23 @@ export default {
           10
         )
         console.log(res)
-        this.loading = false
-        this.commentId = res.data.data.last_id
-        this.commentList.push(...res.data.data.results)
+        if (!res.data.data.results.total_count <= this.commentList.length) {
+          this.loading = false
+          this.commentId = res.data.data.last_id
+          this.commentList.push(...res.data.data.results)
+        }
         if (res.data.data.last_id === res.data.data.end_id) {
           this.loading = true
           this.finished = true
         }
+
+        // this.loading = false
+        // this.commentId = res.data.data.last_id
+        // this.commentList.push(...res.data.data.results)
+        // if (res.data.data.last_id === res.data.data.end_id) {
+        //   this.loading = true
+        //   this.finished = true
+        // }
       } catch (error) {
         console.log(error)
       }
@@ -272,6 +307,13 @@ export default {
       this.getPostComment()
       this.message = ''
       this.show = false
+    },
+    // 底部按钮聚焦点击事件
+    async focusCommentArea () {
+      const contentEnd = document.querySelector('#contentEnd')
+      if (contentEnd) {
+        contentEnd.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
     }
   },
   computed: {

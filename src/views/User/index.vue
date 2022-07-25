@@ -16,7 +16,11 @@
     </van-cell>
 
     <!-- 裁剪头像弹出框 -->
-    <van-popup v-model="show">
+    <van-popup
+      v-model="show"
+      v-if="show"
+      :style="{ height: '100%', backgroundColor: '#000', width: '100%' }"
+    >
       <Popup :photo="photo" @cancelImg="cancelIMG"></Popup>
     </van-popup>
 
@@ -124,7 +128,7 @@ export default {
   },
   mounted () {
     this.$refs.file.addEventListener('change', (e) => {
-      console.log(e.target)
+      // console.log(e.target)
       // e.target触发事件的元素,input输入框
       const file = e.target.files[0] // 要上传的图片
       // file = URL.createObjectURL(file) // 将file对象转为图片可识别的url
@@ -136,6 +140,7 @@ export default {
       fr.onload = (e) => {
         this.photo = e.target.result
         this.show = true
+        // console.log(this.photo)
       }
     })
   },

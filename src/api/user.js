@@ -54,6 +54,7 @@ export const uploadPhoto = (formDate) => {
   return request({
     method: 'PATCH',
     url: '/v1_0/user/photo',
+    timeout: 10000,
     data: formDate
   })
 }
